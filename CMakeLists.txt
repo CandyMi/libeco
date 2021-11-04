@@ -39,6 +39,7 @@ set(ECO_INC
 
 set(ECO_LIBS
   lib/eco.cpp
+  lib/eco_mem.cpp
   lib/eco_acosw.S
   lib/eco_aco.cpp
   lib/eco_dns.cpp

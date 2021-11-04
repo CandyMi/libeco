@@ -39,6 +39,7 @@
   #define eco_realloc(ptr, size)  tc_realloc((ptr), (size))
   #define eco_free(ptr)           tc_free((ptr))
 #else
+  #include <cstdlib>
   #define eco_malloc(size)        malloc((size))
   #define eco_calloc(num, size)   calloc((num), (size))
   #define eco_realloc(ptr, size)  realloc((ptr), (size))
