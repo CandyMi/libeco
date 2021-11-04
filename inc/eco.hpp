@@ -69,7 +69,7 @@ typedef enum {
   ECO_IPV6 = 2,
 } eco_ip_t;
 
-#define pipe(fds)                                eco::eco_pipe(fds);
+#define pipe(fds)                                eco::eco_pipe(fds)
 #define socket(domain, type, protocol)           eco::eco_socket((domain), (type), (protocol))
 #define socketpair(domain, type, protocol, fds)  eco::eco_socketpair((domain), (type), (protocol), (fds))
 
