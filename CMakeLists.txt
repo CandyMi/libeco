@@ -23,6 +23,9 @@ if (ECO_RELEASE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall")
 else ()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -ggdb -Wall")
+  if(ECO_USE_VALGRIND)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DECO_USE_VALGRIND")
+  endif(ECO_USE_VALGRIND)
 endif()
 
 set(ECO_RPATH 
