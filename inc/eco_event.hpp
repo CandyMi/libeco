@@ -16,6 +16,8 @@
 
 #define eco_max_events (8192)
 
+#define eco_get_loop(co) ((co_loop_t*)co->main_co->arg)
+
 #define eco_abort(reason) {                                                 \
   printf("[function: %s][Line: %d]: %s\n", __FUNCTION__, __LINE__, reason); \
   abort();                                                                  \

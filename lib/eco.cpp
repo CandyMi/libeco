@@ -42,6 +42,7 @@ void eco::eco_fork(eco_cocb_t cb)
   aco_t *co = (aco_t *)aco_get_co();
   if (!co)
     eco_abort("No main coroutine.");
+
   aco_share_stack_t* st = aco_share_stack_new(0);
   if (!st)
     eco_abort("Create share stack failed.");
@@ -51,7 +52,7 @@ void eco::eco_fork(eco_cocb_t cb)
   if (!nco)
     eco_abort("Create coroutine failed.");
   /* 已创建的协程放在队列尾部 */
-  ((co_loop_t*)co->main_co->arg)->g_queue.push(nco);
+  eco_get_loop(co)->g_queue.push(nco);
 }
 
 /* 休眠当前协程 */
@@ -64,7 +65,7 @@ void eco::eco_sleep(uint32_t timeout)
   if (!co || !co->main_co) 
     eco_abort("Cannot sleep outside of the coroutine.");
 
-  eco_event::efd_set_tevent(((co_loop_t*)co->main_co->arg)->efd, timeout, co);
+  eco_event::efd_set_tevent(eco_get_loop(co)->efd, timeout, co);
 }
 
 void eco::eco_daemon_init()
@@ -136,7 +137,7 @@ static inline int eco_wait_event(int fd, int events, uint32_t timeout)
     eco_abort("Can't find main coroutine in event wait.");
 
   int ret = 1;
-  int efd = ((co_loop_t*)co->main_co->arg)->efd;
+  int efd = eco_get_loop(co)->efd;
   std::shared_ptr<bool> over = std::make_shared<bool>(false);
 
   /* 读事件 */
@@ -151,7 +152,7 @@ static inline int eco_wait_event(int fd, int events, uint32_t timeout)
         return;
       *over = true;
       /* 加入到等待运行的队列内 */
-      ((co_loop_t*)co->main_co->arg)->g_queue.push(co);
+      eco_get_loop(co)->g_queue.push(co);
     });
   }
 
@@ -167,7 +168,7 @@ static inline int eco_wait_event(int fd, int events, uint32_t timeout)
         return;
       *over = true;
       /* 加入到等待运行的队列内 */
-      ((co_loop_t*)co->main_co->arg)->g_queue.push(co);
+      eco_get_loop(co)->g_queue.push(co);
     });
   }
 
@@ -184,7 +185,7 @@ static inline int eco_wait_event(int fd, int events, uint32_t timeout)
       *over = true;
       ret = 0;
       /* 加入到等待运行的队列内 */
-      ((co_loop_t*)co->main_co->arg)->g_queue.push(co);
+      eco_get_loop(co)->g_queue.push(co);
     });
   }
   /* 等待唤醒 */
@@ -251,7 +252,7 @@ int eco::eco_close(int fd)
   HOOK_INIT(close);
   aco_t* co = aco_get_co();
   if (co and co->main_co)
-    eco_event::efd_unset_ioevent(((co_loop_t*)co->main_co->arg)->efd, fd);
+    eco_event::efd_unset_ioevent(eco_get_loop(co)->efd, fd);
   /* 不管怎么样，都要关闭fd */
   return hook_close(fd);
 }

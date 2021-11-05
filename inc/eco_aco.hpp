@@ -25,7 +25,7 @@
 #include <time.h>
 #include <sys/mman.h>
 
-#ifdef ACO_USE_VALGRIND
+#ifdef ECO_USE_VALGRIND
     #include <valgrind/valgrind.h>
 #endif
 
@@ -84,7 +84,7 @@ typedef struct {
     void* real_ptr;
     size_t real_sz;
 
-#ifdef ACO_USE_VALGRIND
+#ifdef ECO_USE_VALGRIND
     unsigned long valgrind_stk_id;
 #endif
 } aco_share_stack_t;

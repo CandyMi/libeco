@@ -184,7 +184,7 @@ static __thread aco_cofuncp_t aco_gtls_last_word_fp = aco_default_protector_last
 void aco_thread_init(aco_cofuncp_t last_word_co_fp){
     aco_save_fpucw_mxcsr(aco_gtls_fpucw_mxcsr);
 
-    if((void*)last_word_co_fp != NULL)
+    if((void*)last_word_co_fp != nullptr)
         aco_gtls_last_word_fp = last_word_co_fp;
 }
 
@@ -193,7 +193,7 @@ void aco_thread_init(aco_cofuncp_t last_word_co_fp){
 // `co` didn't call aco_exit(co) instead of `return` to
 // finish its execution.
 void aco_funcp_protector(void){
-    if((void*)(aco_gtls_last_word_fp) != NULL){
+    if((void*)(aco_gtls_last_word_fp) != nullptr){
         aco_gtls_last_word_fp();
     }else{
         aco_default_protector_last_word();
@@ -254,7 +254,7 @@ aco_share_stack_t* aco_share_stack_new2(size_t sz, char guard_page_enabled){
 
     if(guard_page_enabled != 0){
         p->real_ptr = mmap(
-            NULL, sz, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0
+            nullptr, sz, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0
         );
         assertalloc_bool(p->real_ptr != MAP_FAILED);
         p->guard_page_enabled = 1;
@@ -271,8 +271,8 @@ aco_share_stack_t* aco_share_stack_new2(size_t sz, char guard_page_enabled){
         assertalloc_ptr(p->ptr);
     }
 
-    p->owner = NULL;
-#ifdef ACO_USE_VALGRIND
+    p->owner = nullptr;
+#ifdef ECO_USE_VALGRIND
     p->valgrind_stk_id = VALGRIND_STACK_REGISTER(
         p->ptr, (void*)((uintptr_t)p->ptr + p->sz)
     );
@@ -297,17 +297,17 @@ aco_share_stack_t* aco_share_stack_new2(size_t sz, char guard_page_enabled){
 }
 
 void aco_share_stack_destroy(aco_share_stack_t* sstk){
-    assert(sstk != NULL && sstk->ptr != NULL);
-#ifdef ACO_USE_VALGRIND
+    assert(sstk != nullptr && sstk->ptr != nullptr);
+#ifdef ECO_USE_VALGRIND
     VALGRIND_STACK_DEREGISTER(sstk->valgrind_stk_id);
 #endif
     if(sstk->guard_page_enabled){
         assert(0 == munmap(sstk->real_ptr, sstk->real_sz));
-        sstk->real_ptr = NULL;
-        sstk->ptr = NULL;
+        sstk->real_ptr = nullptr;
+        sstk->ptr = nullptr;
     } else {
         eco_free(sstk->ptr);
-        sstk->ptr = NULL;
+        sstk->ptr = nullptr;
     }
     eco_free(sstk);
 }
@@ -321,7 +321,7 @@ aco_t* aco_create(
     assertalloc_ptr(p);
     memset(p, 0, sizeof(aco_t));
 
-    if(main_co != NULL){ // non-main co
+    if(main_co != nullptr){ // non-main co
         assertptr(share_stack);
         p->share_stack = share_stack;
 #ifdef __i386__
@@ -365,11 +365,11 @@ aco_t* aco_create(
 #endif
         return p;
     } else { // main co
-        p->main_co = NULL;
+        p->main_co = nullptr;
         p->arg = arg;
         p->fp = fp;
-        p->share_stack = NULL;
-        p->save_stack.ptr = NULL;
+        p->share_stack = nullptr;
+        p->save_stack.ptr = nullptr;
         return p;
     }
     assert(0);
@@ -377,11 +377,11 @@ aco_t* aco_create(
 
 aco_attr_no_asan
 void aco_resume(aco_t* resume_co){
-    assert(resume_co != NULL && resume_co->main_co != NULL
+    assert(resume_co != nullptr && resume_co->main_co != nullptr
         && resume_co->is_end == 0
     );
     if(resume_co->share_stack->owner != resume_co){
-        if(resume_co->share_stack->owner != NULL){
+        if(resume_co->share_stack->owner != nullptr){
             aco_t* owner_co = resume_co->share_stack->owner;
             assert(owner_co->share_stack == resume_co->share_stack);
 #if defined(__i386__) || defined(__x86_64__) || defined(__aarch64__)
@@ -406,7 +406,7 @@ void aco_resume(aco_t* resume_co){
                 (uintptr_t)(owner_co->reg[ACO_REG_IDX_SP]);
             if(owner_co->save_stack.sz < owner_co->save_stack.valid_sz){
                 eco_free(owner_co->save_stack.ptr);
-                owner_co->save_stack.ptr = NULL;
+                owner_co->save_stack.ptr = nullptr;
                 while(1){
                     owner_co->save_stack.sz = owner_co->save_stack.sz << 1;
                     assert(owner_co->save_stack.sz > 0);
@@ -438,13 +438,13 @@ void aco_resume(aco_t* resume_co){
             if(owner_co->save_stack.valid_sz > owner_co->save_stack.max_cpsz){
                 owner_co->save_stack.max_cpsz = owner_co->save_stack.valid_sz;
             }
-            owner_co->share_stack->owner = NULL;
+            owner_co->share_stack->owner = nullptr;
             owner_co->share_stack->align_validsz = 0;
 #else
             #error "platform no support yet"
 #endif
         }
-        assert(resume_co->share_stack->owner == NULL);
+        assert(resume_co->share_stack->owner == nullptr);
 #if defined(__i386__) || defined(__x86_64__) || defined(__aarch64__)
         assert(
             resume_co->save_stack.valid_sz
@@ -495,11 +495,11 @@ void aco_destroy(aco_t* co){
     assertptr(co);
     if (!aco_is_main_co(co)) {
         if(co->share_stack->owner == co){
-            co->share_stack->owner = NULL;
+            co->share_stack->owner = nullptr;
             co->share_stack->align_validsz = 0;
         }
         eco_free(co->save_stack.ptr);
-        co->save_stack.ptr = NULL;
+        co->save_stack.ptr = nullptr;
     }
     eco_free(co);
 }
