@@ -42,7 +42,73 @@
 |ECO_JEMALLOC|-DECO_JEMALLOC=1|告知链接使用`jemalloc`|
 |ECO_TCMALLOC|-DECO_TCMALLOC=1|告知链接使用`tcmalloc`|
 
-例如: `cmake .. -DECO_OPENSSL=1 && make && make install`
+例如: 
+```bash
+[root@Server:~/libeco/build] cmake .. -DECO_RELEASE=1 && make && make install
+```
+
+## Example
+
+
+### 1. 创建多个协程.
+```cpp
+#include <iostream>
+#include <eco.hpp>
+
+int main(int argc, char const *argv[])
+{
+  eco::eco_run([]{
+
+    eco::eco_fork([]{
+      std::cout << "Hello ";
+    });
+
+    eco::eco_fork([]{
+      std::cout << "c plus plus ";
+    });
+
+    eco::eco_fork([]{
+      std::cout << "!" << std::endl;
+    });
+
+  });
+  return 0;
+}
+```
+
+
+### 2. 创建多个定时器
+
+```cpp
+#include <iostream>
+#include <eco.hpp>
+
+int main(int argc, char const *argv[])
+{
+  eco::eco_run([]{
+
+    eco::eco_fork([]{
+      std::cout << "定时器`1`休眠1秒" << std::endl;
+      eco::eco_sleep(100);
+      std::cout << "定时器`1`休眠结束" << std::endl;
+    });
+
+    eco::eco_fork([]{
+      std::cout << "定时器`2`休眠1秒" << std::endl;
+      eco::eco_sleep(100);
+      std::cout << "定时器`2`休眠结束" << std::endl;
+    });
+
+    eco::eco_fork([]{
+      std::cout << "定时器`3`休眠1秒" << std::endl;
+      eco::eco_sleep(100);
+      std::cout << "定时器`3`休眠结束" << std::endl;
+    });
+
+  });
+  return 0;
+}
+```
 
 ## Notice
 
